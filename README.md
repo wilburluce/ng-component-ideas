@@ -1,9 +1,9 @@
 #### Some Best Practices for Angular Components
-Having worked with Angular components for awhile, I have developed a few best practices that to me give a lot of value for the amount of effort to implement them. This discussion in no way
-attemps to cover the complete spectrum of best practices for components, just the most important from my own perspective. Here are the benefits:
-1) Avoids subscribes and related cleanup in the component - a frequent source of memory leaks and runaway observables
-2) Allows components to use the OnPush detection strategy without much extra code
-3) Enables simpler unit tests since component methods often will use unwrapped data (easier to mock objects vs observables)
+Having worked with Angular components for awhile, a couple of things stood out to me as problematic: 1) managing rxjs subscriptions (too much impertive code) and 2) writing components that only render when necessary. When I first looked at the OnPush change detection strategy it seemed like I was going from big guard rails to no guard rails - and I didnt feel like going there. Recently I discovered that something that helped me manage my subscriptions can also handle the smart change detection - the async pipe. So the following is going to go over what I have already been doing for components (combining observables and using the async pipe for subscribe/unsubscribe), but also add in the simple step to get OnPush change detection to improve component performance. Following this approach you should get the following benefits:
+
+1) Avoid subscribes and related cleanup in the component - a frequent source of memory leaks and runaway observables
+2) Allow components to use the OnPush detection strategy without much extra code
+3) Enable simpler unit tests since component methods often will use unwrapped data (easier to mock objects vs observables)
 4) Easier to review code. If a component follows this pattern, a reviewer will not have to dig deep into subscribe callbacks and cleanup.
 
 Note: the Angular async pipe is going to handle most of the work for us once we get things set up. Here is a link followed by a numbered list to highlight the key features from the description: 
