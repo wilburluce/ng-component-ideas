@@ -1,5 +1,6 @@
 #### Some Best Practices for Angular Components
-Having worked with Angular components for awhile, a couple of things stood out to me as problematic: 1) managing rxjs subscriptions (too much impertive code) and 2) writing components that only render when necessary. When I first looked at the OnPush change detection strategy it seemed like I was going from big guard rails to no guard rails - and I didnt feel like going there. Recently I discovered that something that helped me manage my subscriptions can also handle the smart change detection - the async pipe. So the following is going to go over what I have already been doing for components (combining observables and using the async pipe for subscribe/unsubscribe), but also add in the simple step to get OnPush change detection to improve component performance. Following this approach you should get the following benefits:
+Having worked with Angular components for awhile, a couple of things stood out to me as problematic:
+1) managing rxjs subscriptions (too much imperative code) and 2) writing components that only render when necessary. When I first looked at the OnPush change detection strategy it seemed like I was going from big guard rails to no guard rails - and I didnt feel like going there. Recently I discovered that something that helped me manage my subscriptions can also handle the smart change detection - the async pipe. So the following is going to go over what I have already been doing for components (combining observables and using the async pipe for subscribe/unsubscribe), but also add in the simple step to get OnPush change detection to improve component performance. Following this approach you should get the following benefits:
 
 1) Avoid subscribes and related cleanup in the component - a frequent source of memory leaks and runaway observables
 2) Allow components to use the OnPush detection strategy without much extra code
@@ -21,9 +22,9 @@ Here’s my approach:
 ### 1. Combine the observables needed in the template into a single observable returning an object
 
 ```
-public templateState: TemplateState;
+public viewState: ViewState;
 …
-this.templateState$ = combineLatest(
+this.viewState$ = combineLatest(
     this.store.selectUser(),
     this.caStore.selectTopics(),
     this.caStore.selectComments()
@@ -35,7 +36,7 @@ this.templateState$ = combineLatest(
 ```
 ### 2. (optional) Create an interface for the combined object. This makes it explicit what types are used by the template and gives better IDE support:
 ```
-export interface TemplateState {
+export interface ViewState {
     user: User;
     topics: Topic[];
     friends: User[];
@@ -43,7 +44,7 @@ export interface TemplateState {
 ```
 ### 3. In the template, at the outer most element you need data, have an *ngIf referencing the combined observable and pipe it to async
 ```
-    <ng-container *ngIf="templateState$ | async as templateState">
+    <ng-container *ngIf="viewState$ | async as viewState">
 ```
 This single line of markup will tell Angular
 1) subscribe to your (combined) observable
@@ -54,8 +55,8 @@ There is no need to manage any of these things in typescript directly. This make
 and easier to test.
 
 ### Further Discussion
-You may be asking, ‘what if I need to initialize something like a reactive form before the template renders?’ Answer: add an *ngIf=“initializeFormGroup(templateState) as formGroup”
-below the main *ngIf - the method takes the templateState and returns the formGroup. The idea here, in general, is to pass the templateState back to methods in the component which will keep you from having to create and subscribe to observables. It will also make it easier to unit test the component methods. 
+You may be asking, ‘what if I need to initialize something like a reactive form before the template renders?’ Answer: add an *ngIf=“initializeFormGroup(viewState) as formGroup”
+below the main *ngIf - the method takes the viewState and returns the formGroup. The idea here, in general, is to pass the viewState back to methods in the component which will keep you from having to create and subscribe to observables. It will also make it easier to unit test the component methods. 
 
 OnPush change detection
 
@@ -72,9 +73,10 @@ By far the easiest approach is to use the async pipe (assuming you set up your o
 
 If you followed the steps above in your component, all you will need to do to get the benefit of OnPush is the following:
 
-4. Add changeDetectionStrategy OnPush inside component decorator object:
-    changeDetection: ChangeDetectionStrategy.OnPush
-
+#### Add changeDetectionStrategy OnPush inside component decorator object:
+```
+  changeDetection: ChangeDetectionStrategy.OnPush
+```
 
 Further reading:
 - https://blog.angular-university.io/how-does-angular-2-change-detection-really-work/
