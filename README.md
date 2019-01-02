@@ -1,13 +1,16 @@
 #### Some Best Practices for Angular Components
-Having worked with Angular components for awhile, a couple of things stood out to me as problematic:
-1) managing rxjs subscriptions (too much imperative code) and 2) writing components that only render when necessary. When I first looked at the OnPush change detection strategy it seemed like I was going from big guard rails to no guard rails - and I didnt feel like going there. Recently I discovered that something that helped me manage my subscriptions can also handle the smart change detection - the async pipe. So the following is going to go over what I have already been doing for components (combining observables and using the async pipe for subscribe/unsubscribe), but also add in the simple step to get OnPush change detection to improve component performance. Following this approach you should get the following benefits:
+A couple of things have stood out to me as painful when working with Angular components:
+1) Managing rxjs subscriptions - there is too much imperative code and they are memory leak prone
+2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box experience, but frequently will cause many needless re-renders.
+When I first looked at the OnPush change detection strategy it seemed like I would have to go from big guard rails to no guard rails. But after digging deeper into it, I found something I already use as a best practice for subscriptions (the async pipe) could also take care of change detection. So the following is going to go over what I have already been doing for components (combining observables and using the async pipe for subscribe/unsubscribe), but also add in the simple step to get OnPush change detection to improve component performance. 
 
-1) Avoid subscribes and related cleanup in the component - a frequent source of memory leaks and runaway observables
+Using this approach you should get the following benefits:
+1) Avoid subscribes and related cleanup in the component typescript - a source of memory leaks and runaway observables
 2) Allow components to use the OnPush detection strategy without much extra code
 3) Enable simpler unit tests since component methods often will use unwrapped data (easier to mock objects vs observables)
 4) Easier to review code. If a component follows this pattern, a reviewer will not have to dig deep into subscribe callbacks and cleanup.
 
-Note: the Angular async pipe is going to handle most of the work for us once we get things set up. Here is a link followed by a numbered list to highlight the key features from the description: 
+Note: the Angular async pipe is going to handle most of the work after the code is setup properly. Here is a link followed by a numbered list to highlight the key features from the description: 
 https://angular.io/api/common/AsyncPipe#description
 1) The `async` pipe subscribes to an `Observable` or `Promise` and returns the latest value it has emitted. 
 2) When a new value is emitted, the `async` pipe marks the component to be checked for changes. 
@@ -15,7 +18,8 @@ https://angular.io/api/common/AsyncPipe#description
 
 #### How to avoid subscribe and unsubscribe.
 
-One of the challenges of working with rxjs is the need to manage subscriptions. For those who have worked with the C/C++ languages, this is similar to the malloc/free and new/delete programming practice that is prone to memory leaks.  The lead developer of rxjs wrote a best-practices article on subscribe/unsubscribe: [dont unsubscribe](https://medium.com/@benlesh/rxjs-dont-unsubscribe-6753ed4fda87). Even with best practice, there is still some degree of imperitive code management: e.g. a boolean (stop$) and takeUntil() operator to notify observables to shutdown a subscription. This is probably the best-case without Angular, but with Angular the async pipe will allow us to write more elegant code.
+One of the challenges of working with rxjs is the need to manage subscriptions. For those who have worked with the C/C++ languages, this is similar to the malloc/free and new/delete programming practice that is prone to memory leaks.  The lead developer of rxjs wrote a best-practices article on subscribe/unsubscribe: [dont unsubscribe](https://medium.com/@benlesh/rxjs-dont-unsubscribe-6753ed4fda87). Even with best practice, there is still some degree of imperitive code management: e.g. a boolean (stop$) and takeUntil() operator to notify observables to shutdown a subscription. This is probably the best-case without Angular,
+but with Angular the async pipe will you to write more elegant code.
 
 Here’s my approach:
 
@@ -34,6 +38,7 @@ this.viewState$ = combineLatest(
     )
 );
 ```
+The point of combining the observables is 1) to have a single source of observable data in the template and therefore a single subscription. This is also key to getting change detection for free.
 ### 2. (optional) Create an interface for the combined object. This makes it explicit what types are used by the template and gives better IDE support:
 ```
 export interface ViewState {
@@ -47,20 +52,20 @@ export interface ViewState {
     <ng-container *ngIf="viewState$ | async as viewState">
 ```
 This single line of markup will tell Angular
-1) subscribe to your (combined) observable
-2) mark the component for change detection when new values arrive
+1) subscribe to your observable
+2) mark the component for change detection when a new value arrives
 3) handle the unsubscribe on destroy. 
 
 There is no need to manage any of these things in typescript directly. This makes your code smaller, easier to understand,
 and easier to test.
 
-### Further Discussion
+#### Further Discussion
 You may be asking, ‘what if I need to initialize something like a reactive form before the template renders?’ Answer: add an *ngIf=“initializeFormGroup(viewState) as formGroup”
 below the main *ngIf - the method takes the viewState and returns the formGroup. The idea here, in general, is to pass the viewState back to methods in the component which will keep you from having to create and subscribe to observables. It will also make it easier to unit test the component methods. 
 
-OnPush change detection
+###OnPush change detection
 
-Angular has a default change detection strategy that has to be very unassuming about what data may change and is therefore inefficient from the perspective of rendering (it frequently re-renders the template when we can visually tell its not necessary). Its goal is make writing templates easier out of the box. How it does this is beyond scope, but essentially it uses the zone.js library to track any changes to the component data. 
+Angular has a default change detection strategy that has to be very unassuming about what data may change and is therefore inefficient from the perspective of rendering. Its goal is make writing templates easier out of the box. How it does this is beyond scope, but essentially it uses the zone.js library to track any changes to the component data but it has no way to know if that change effects the view, so it has to mark the component dirty. 
 
 Angular also provides the more DIY approach for change detection called OnPush. The downside is this puts all the responsibility of when to re-render the template on the developer. There are actually many ways a developer can implement a successful OnPush strategy - here is a non-exhaustive list:
 1) making a pure @input component
@@ -69,7 +74,7 @@ Angular also provides the more DIY approach for change detection called OnPush. 
 4) explicitly calling markForCheck() when some value needed by the template changes.
 5) using the async pipe to automatically markForCheck() anytime new values emit
 
-By far the easiest approach is to use the async pipe (assuming you set up your observable as ive described). The async pipe will call the markForCheck() method on the changeDetector for us whenever the observable we’ve subscribed to emits a new value. This is exactly when we want the template to re-render, If we’ve coalesced all the data into a single observable. 
+By far the easiest approach is to use the async pipe (assuming you set up your observable as ive described). The async pipe will call the markForCheck() method on the changeDetector for you whenever the observable emits a new value. This is exactly when you would want the component re-render.
 
 If you followed the steps above in your component, all you will need to do to get the benefit of OnPush is the following:
 
