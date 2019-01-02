@@ -1,7 +1,7 @@
-#### Some Best Practices for Angular Components
+### Some Best Practices for Angular Components
 A couple of things have stood out to me as painful when working with Angular components:
-1) Managing rxjs subscriptions - there is too much imperative code and they are memory leak prone
-2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box experience, but frequently will cause many needless re-renders.
+1) Managing rxjs subscriptions - there is too much imperative code and potential for memory leaks
+2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box experience, but frequently causes needless re-renders.
 When I first looked at the OnPush change detection strategy it seemed like I would have to go from big guard rails to no guard rails. But after digging deeper into it, I found something I already use as a best practice for subscriptions (the async pipe) could also take care of change detection. So the following is going to go over what I have already been doing for components (combining observables and using the async pipe for subscribe/unsubscribe), but also add in the simple step to get OnPush change detection to improve component performance. 
 
 Using this approach you should get the following benefits:
@@ -18,12 +18,12 @@ https://angular.io/api/common/AsyncPipe#description
 
 #### How to avoid subscribe and unsubscribe.
 
-One of the challenges of working with rxjs is the need to manage subscriptions. For those who have worked with the C/C++ languages, this is similar to the malloc/free and new/delete programming practice that is prone to memory leaks.  The lead developer of rxjs wrote a best-practices article on subscribe/unsubscribe: [dont unsubscribe](https://medium.com/@benlesh/rxjs-dont-unsubscribe-6753ed4fda87). Even with best practice, there is still some degree of imperitive code management: e.g. a boolean (stop$) and takeUntil() operator to notify observables to shutdown a subscription. This is probably the best-case without Angular,
+One of the challenges of working with rxjs is the need to manage subscriptions. For those who have worked with the C/C++ languages, this is similar to the malloc/free and new/delete programming practice that is prone to memory leaks.  The lead developer of rxjs wrote a best-practices article on subscribe/unsubscribe: [dont unsubscribe](https://medium.com/@benlesh/rxjs-dont-unsubscribe-6753ed4fda87). Even with best practice, there is still some degree of imperative code management: e.g. a boolean (stop$) and takeUntil() operator to notify observables to shutdown a subscription. This is probably the best-case without Angular,
 but with Angular the async pipe will you to write more elegant code.
 
 Here’s my approach:
 
-### 1. Combine the observables needed in the template into a single observable returning an object
+#### 1. Combine the observables needed in the template into a single observable returning an object
 
 ```
 public viewState: ViewState;
@@ -38,7 +38,7 @@ this.viewState$ = combineLatest(
     )
 );
 ```
-The point of combining the observables is 1) to have a single source of observable data in the template and therefore a single subscription. This is also key to getting change detection for free.
+The point of combining the observables is to have a single source of observable data in the template and therefore a single subscription.
 ### 2. (optional) Create an interface for the combined object. This makes it explicit what types are used by the template and gives better IDE support:
 ```
 export interface ViewState {
