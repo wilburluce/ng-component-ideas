@@ -2,7 +2,7 @@
 There's a couple things Ive found challenging when working with Angular components:
 1) Managing rxjs subscriptions - need for unsubscribe and potential for memory leaks
 2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box experience, but frequently causes needless re-renders.
-When I first looked at the OnPush change detection strategy it seemed like I would have to go from big guard rails to no guard rails. But after digging deeper into it, I found something I already use as a best practice for subscriptions (the async pipe) could also take care of change detection. 
+When I first looked at the OnPush change detection strategy it seemed like I would have to go from big guard rails to no guard rails. But after digging deeper into it, I found something I already used for subscriptions (the async pipe) could also take care of change detection. 
 
 Using this approach you should get the following benefits:
 1) Avoid subscribes and related cleanup in the component typescript - a source of memory leaks and runaway observables
@@ -51,7 +51,7 @@ export interface ViewState {
 ```
     <ng-container *ngIf="viewState$ | async as viewState">
 ```
-This single line of markup will tell Angular
+This single line of markup will tell Angular via the async pipe to:
 1) subscribe to your observable
 2) mark the component for change detection when a new value arrives
 3) handle the unsubscribe on destroy. 
@@ -60,8 +60,11 @@ There is no need to manage any of these things in typescript directly. This shou
 and easier to test.
 
 #### Further Discussion
-You may be asking, ‘what if I need to initialize something like a reactive form before the template renders?’ Answer: add an *ngIf=“initializeFormGroup(viewState) as formGroup”
-below the main *ngIf - the method takes the viewState and returns the formGroup. The idea here, in general, is to pass the viewState back to methods in the component which will keep you from having to create and subscribe to observables. It will also make it easier to unit test the component methods. 
+Question: ‘what if I need to initialize something like a reactive form before the template renders?’ 
+Answer: add
+```<ng-container *ngIf=“initializeFormGroup(viewState) as formGroup”>...</ng-container>```
+
+The method takes the viewState and returns the formGroup. The idea here, in general, is to pass the viewState back to methods in the component which will keep you from having to create and subscribe to observables. It should also make it easier to unit test the component methods by mocking objects vs spying on things that return data for observables. 
 
 ###OnPush change detection
 
