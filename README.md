@@ -1,8 +1,8 @@
 ### Some Best Practices for Angular Components
-A couple of things have stood out to me as painful when working with Angular components:
+There's a couple things Ive found painful when working with Angular components:
 1) Managing rxjs subscriptions - there is too much imperative code and potential for memory leaks
 2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box experience, but frequently causes needless re-renders.
-When I first looked at the OnPush change detection strategy it seemed like I would have to go from big guard rails to no guard rails. But after digging deeper into it, I found something I already use as a best practice for subscriptions (the async pipe) could also take care of change detection. So the following is going to go over what I have already been doing for components (combining observables and using the async pipe for subscribe/unsubscribe), but also add in the simple step to get OnPush change detection to improve component performance. 
+When I first looked at the OnPush change detection strategy it seemed like I would have to go from big guard rails to no guard rails. But after digging deeper into it, I found something I already use as a best practice for subscriptions (the async pipe) could also take care of change detection. 
 
 Using this approach you should get the following benefits:
 1) Avoid subscribes and related cleanup in the component typescript - a source of memory leaks and runaway observables
@@ -47,7 +47,7 @@ export interface ViewState {
     friends: User[];
 }
 ```
-### 3. In the template, at the outer most element you need data, have an *ngIf referencing the combined observable and pipe it to async
+### 3. In the template have an *ngIf referencing the combined observable and pipe it to async
 ```
     <ng-container *ngIf="viewState$ | async as viewState">
 ```
