@@ -1,6 +1,6 @@
 ### Some Best Practices for Angular Components
-There's a couple things Ive found painful when working with Angular components:
-1) Managing rxjs subscriptions - there is too much imperative code and potential for memory leaks
+There's a couple things Ive found challenging when working with Angular components:
+1) Managing rxjs subscriptions - need for unsubscribe and potential for memory leaks
 2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box experience, but frequently causes needless re-renders.
 When I first looked at the OnPush change detection strategy it seemed like I would have to go from big guard rails to no guard rails. But after digging deeper into it, I found something I already use as a best practice for subscriptions (the async pipe) could also take care of change detection. 
 
