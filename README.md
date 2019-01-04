@@ -18,7 +18,7 @@ https://angular.io/api/common/AsyncPipe#description
 
 #### How to avoid subscribe and unsubscribe.
 
-One of the challenges of working with rxjs is the need to manage subscriptions. For those who have worked with the C/C++ languages, this is similar to the malloc/free and new/delete programming practice that is prone to memory leaks.  The lead developer of rxjs (Ben Lesh) wrote a best-practices article on subscribe/unsubscribe: [dont unsubscribe](https://medium.com/@benlesh/rxjs-dont-unsubscribe-6753ed4fda87). Even with recommended approach, you will still have to write some code: i.e. the example shows a boolean (stop$) and takeUntil() operator to indicate when to shutdown the subscription.
+One of the challenges of working with rxjs is the need to manage subscriptions. For those who have worked with the C/C++ languages, this is similar to the malloc/free and new/delete programming practice that is prone to memory leaks.  The lead developer of rxjs (Ben Lesh) wrote a best-practices article on subscribe/unsubscribe: [dont unsubscribe](https://medium.com/@benlesh/rxjs-dont-unsubscribe-6753ed4fda87). Even with the recommended approach, you will still have to write some code: i.e. the example shows a boolean (stop$) and takeUntil() operator to indicate when to shutdown the subscription.
 This shows a least-imperative, best-case approach without Angular, but with Angular the async pipe can handle this chore for you.
 
 Here are the recommened pratices:
@@ -39,7 +39,7 @@ this.viewState$ = combineLatest(
 );
 ```
 The point of combining the observables is to have a single source of observable data in the template and therefore a single subscription. This will assist with OnPush change detection as well.
-### 2. (optional) Create an interface for the combined object. This makes it explicit what types are used by the template and gives better IDE support:
+#### 2. (optional) Create an interface for the combined object. This makes it explicit what types are used by the template and gives better IDE support:
 ```
 export interface ViewState {
     user: User;
@@ -47,7 +47,7 @@ export interface ViewState {
     friends: User[];
 }
 ```
-### 3. In the template have an *ngIf referencing the combined observable and pipe it to async
+#### 3. In the template have an *ngIf referencing the combined observable and pipe it to async
 ```
     <ng-container *ngIf="viewState$ | async as viewState">
 ```
