@@ -18,8 +18,8 @@ https://angular.io/api/common/AsyncPipe#description
 
 #### How to avoid subscribe and unsubscribe.
 
-One of the challenges of working with rxjs is the need to manage subscriptions. For those who have worked with the C/C++ languages, this is similar to the malloc/free and new/delete programming practice that is prone to memory leaks.  The lead developer of rxjs wrote a best-practices article on subscribe/unsubscribe: [dont unsubscribe](https://medium.com/@benlesh/rxjs-dont-unsubscribe-6753ed4fda87). Even with best practice, there is still some degree of imperative code management: e.g. a boolean (stop$) and takeUntil() operator to indicate when to shutdown a subscription.
-This is probably a best-case approach without Angular,but with Angular the async pipe will you to write more elegant code.
+One of the challenges of working with rxjs is the need to manage subscriptions. For those who have worked with the C/C++ languages, this is similar to the malloc/free and new/delete programming practice that is prone to memory leaks.  The lead developer of rxjs wrote a best-practices article on subscribe/unsubscribe: [dont unsubscribe](https://medium.com/@benlesh/rxjs-dont-unsubscribe-6753ed4fda87). Even with recommended approach, you will still have to write some code: i.e. manage a boolean (stop$) and takeUntil() operator to indicate when to shutdown a subscription.
+This is probably a best-case approach without Angular, but with Angular the async pipe will you to write more elegant code.
 
 Here’s my approach:
 
