@@ -1,6 +1,6 @@
 ### Some Best Practices for Angular Components
 Below are some best practices that were driven by some things Ive found challenging when working with Angular components:
-1) Managing rxjs subscriptions - need for unsubscribe for each subscribe and potential for memory leaks if this is not done
+1) Managing rxjs subscriptions - need for unsubscribe and potential for continuous emitted values and memory leaks if this is not done
 2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box experience, but frequently causes needless re-renders.
 When I first looked at the OnPush change detection strategy it seemed like I would have to go from big guard rails to no guard rails. But after digging deeper into it, I found something I already used for subscriptions (the async pipe) could also take care of change detection. 
 
@@ -60,15 +60,16 @@ There is no need to manage any of these things in typescript directly. This shou
 and easier to test.
 
 #### Further Discussion
-Question: ‘what if I need to initialize something like a reactive form before the template renders?’ 
+Question: ‘What if I need to initialize something like a reactive form before the template renders?’ 
 Answer: add
+
 ```<ng-container *ngIf=“initializeFormGroup(viewState) as formGroup”>...</ng-container>```
 
-The method takes the viewState and returns the formGroup. The idea here, in general, is to pass the viewState back to methods in the component which will keep you from having to create and subscribe to observables. It should also make it easier to unit test the component methods by mocking objects vs spying on things that return data for observables. 
+The method takes the viewState and returns the formGroup. The idea here, in general, is to pass the viewState back to methods in the component which will keep you from having to create and subscribe to observables. It should also make it easier to unit test the component methods by mocking the view object vs spying on things that return data for observables. 
 
 ###OnPush change detection
 
-Angular has a default change detection strategy that has to be very unassuming about what data may change and is therefore inefficient from the perspective of rendering. Its goal is make writing templates easier out of the box. How it does this is beyond scope, but essentially it uses the zone.js library to track any changes to the component data but it has no way to know if that change effects the view, so it has to mark the component dirty. 
+Angular has a default change detection strategy that has to be very unassuming about what data may change - that is, it aggressively marks the component as dirty (needs render) on any async . Its goal is make writing templates easier out of the box. How it does this is beyond scope, but essentially it uses the zone.js library to track any async changes to the component data but it has no way to know if that change effects the view - so it has to mark the component dirty. 
 
 Angular also provides the more DIY approach for change detection called OnPush. The downside is this puts all the responsibility of when to re-render the template on the developer. There are actually many ways a developer can implement a successful OnPush strategy - here is a non-exhaustive list:
 1) making a pure @input component
