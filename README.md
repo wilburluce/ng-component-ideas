@@ -75,20 +75,23 @@ Angular also provides the more DIY approach for change detection called OnPush. 
 
 The async pipe is the easiest approach here. The async pipe will call the markForCheck() method on the changeDetector for you whenever the observable emits a new value. This is when you want the component re-render.
 
-If you followed the steps above in your component, all you will need to do to get the benefit of OnPush is the following:
+If you followed the steps above, all you will need to do to get the benefit of OnPush is add the following in your @component decorator:
 
-#### Add changeDetectionStrategy OnPush inside component decorator object:
 ```
   changeDetection: ChangeDetectionStrategy.OnPush
 ```
 
 #### Further Discussion
-Question: ‘What if I need to initialize something like a reactive form before the template renders?’ 
-Answer: add another *ngIf somewhere below the element that subscribes to the view data.
+##### Question: ‘What if I need to initialize something like a reactive form before the template renders?’ 
+##### Answer: add another *ngIf somewhere below the element that subscribes to the view data.
 
 ```<ng-container *ngIf=“initializeFormGroup(viewData) as formGroup”>...</ng-container>```
 
+##### Question: what to do if I need an observable/subscribe in my component
+##### Answer: handle your subscribe / unsubscribe in code, but make sure to add markForCheck() when needed
 The method takes the viewData and returns the formGroup. The idea here, in general, is to pass the viewData back to methods in the component which will keep you from having to create and subscribe to observables. It should also make it easier to unit test the component methods by mocking the view object vs spying on things that return data for observables.
+
+
 
 Further reading:
 - https://blog.angular-university.io/how-does-angular-2-change-detection-really-work/
