@@ -9,14 +9,14 @@ import {DataService, ViewData} from './app.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  public viewState$: Observable<ViewData>;
+  public viewData$: Observable<ViewData>;
 
   constructor(public dataSvc: DataService) {
   }
 
   ngOnInit() {
 
-    this.viewState$ = combineLatest(
+    this.viewData$ = combineLatest(
       this.dataSvc.selectUser(),
       this.dataSvc.selectTopics(),
       this.dataSvc.selectFriends()

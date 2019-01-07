@@ -1,8 +1,8 @@
-<ng-container *ngIf="viewState$ | async as viewState">
-  <div>name: {{ viewState.user.name}}</div>
+<ng-container *ngIf="viewData$ | async as viewData">
+  <div>name: {{ viewData.user.name}}</div>
   <div>
     <ul>
-      <li *ngFor="let topic of viewState.topics">
+      <li *ngFor="let topic of viewData.topics">
         {{topic.name}}
       </li>
     </ul>
