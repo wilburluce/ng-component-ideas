@@ -1,13 +1,14 @@
 ### Some Best Practices for Angular Components
 After working with Angular components for a while, I found a couple of things that nagged at me for a better approach:
-1) Managing rxjs subscriptions - the need to unsubscribe from observables with potential for memory leaks
+1) Managing rxjs subscriptions - the need to unsubscribe from observables with potential for memory leaks. I found in most cases,
+I can let the async pipe handle subscribing and unsubscribing for me.
 2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box
 experience, but frequently causes needless re-renders.
 When I first looked at the OnPush change detection strategy it looked like going from big guard rails to no guard rails. But after digging deeper, I discovered my approach for managing subscriptions (the async pipe) could also assist with OnPush change detection.  
 
 Using this approach you should get the following benefits:
 1) Avoid subscribes and related cleanup in the component typescript - repetitive code and a source of memory leaks/runaway observables
-2) Allow components to use the OnPush detection strategy without much extra code
+2) Allow components to use the OnPush detection strategy without much extra code - better UI performance/experience
 3) Enable simpler unit tests since component methods often will use unwrapped data (easier to mock objects vs observables)
 4) Easier to review code. If a component follows this pattern, a reviewer will not have to dig deep into subscribe callbacks and unsubscribes.
 
@@ -21,7 +22,7 @@ https://angular.io/api/common/AsyncPipe#description
 #### How to avoid subscribe and unsubscribe.
 
 One of the challenges of working with rxjs is the need to manage subscriptions. For those who have worked with the C/C++ languages, this is similar to the malloc/free and new/delete programming practice that is prone to memory leaks.  The lead developer of rxjs (Ben Lesh) wrote a best-practices article on subscribe/unsubscribe: [dont unsubscribe](https://medium.com/@benlesh/rxjs-dont-unsubscribe-6753ed4fda87). Even with the recommended approach, you will still have to write some code: i.e. the example shows a boolean (stop$) and takeUntil() operator to indicate when to shutdown the subscription.
-This shows a least-imperative, best-case approach without Angular, but with Angular the async pipe can handle this chore for you.
+His examples show a least-imperative, best-case approach without Angular, but with Angular the async pipe can handle this chore for you.
 
 Here are the recommened pratices:
 
