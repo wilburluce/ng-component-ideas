@@ -18,20 +18,18 @@ export class DataService {
   public selectTopics(): Observable<Topic[]> {
     return of(
       [
-        {name: 'rxjs'},
-        {name: 'ngrx'},
-        {name: 'components'},
-        {name: 'router'},
-        {name: 'cli'},
-        {name: 'testing'}
+        {id: 1, name: 'rxjs'},
+        {id: 2, name: 'ngrx'},
+        {id: 3, name: 'components'},
+        {id: 4, name: 'router'},
+        {id: 5, name: 'cli'},
+        {id: 6, name: 'testing'}
       ]
     )
   }
 }
 
-
-
-export interface ViewStatex {
+export interface ViewData {
   user: User;
   topics: Topic[];
   friends: User[];
@@ -43,5 +41,6 @@ export interface User {
 }
 
 export interface Topic {
+  id: number;
   name: string;
 }

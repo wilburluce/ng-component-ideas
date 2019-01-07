@@ -1,7 +1,7 @@
-import { Component, Injectable, OnInit } from '@angular/core';
-import { combineLatest, Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { DataService, ViewStatex } from './app.service';
+import {Component, OnInit} from '@angular/core';
+import {combineLatest, Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {DataService, ViewData} from './app.service';
 
 @Component({
   selector: 'app-root',
@@ -9,9 +9,10 @@ import { DataService, ViewStatex } from './app.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  public viewState$: Observable<ViewStatex>;
+  public viewState$: Observable<ViewData>;
 
-  constructor(public dataSvc: DataService) {}
+  constructor(public dataSvc: DataService) {
+  }
 
   ngOnInit() {
 
