@@ -1,0 +1,11 @@
+<ng-container *ngIf="viewState$ | async as viewState">
+  <div>name: {{ viewState.user.name}}</div>
+  <div>
+    <ul>
+      <li *ngFor="let topic of viewState.topics">
+        {{topic.name}}
+      </li>
+    </ul>
+  </div>
+</ng-container>
+
