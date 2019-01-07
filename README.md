@@ -1,8 +1,9 @@
 ### Some Best Practices for Angular Components
-Below are some best practices that were driven by some things Ive found challenging when working with Angular components:
-1) Managing rxjs subscriptions - the need to unsubscribe from observables means extra code and potential for memory leaks
-2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box experience, but frequently causes needless re-renders.
-When I first looked at the OnPush change detection strategy it seemed like I would have to go from big guard rails to no guard rails. But after digging deeper into it, I found something I already used for subscriptions (the async pipe) could also take care of change detection. 
+After working with Angular components for a while, I found a couple of things that nagged at me for a better approach:
+1) Managing rxjs subscriptions - the need to unsubscribe from observables with potential for memory leaks
+2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box
+experience, but frequently causes needless re-renders.
+When I first looked at the OnPush change detection strategy it looked like going from big guard rails to no guard rails. But after digging deeper, I discovered my approach for managing subscriptions (the async pipe) could also assist with OnPush change detection.  
 
 Using this approach you should get the following benefits:
 1) Avoid subscribes and related cleanup in the component typescript - repetitive code and a source of memory leaks/runaway observables
@@ -10,7 +11,8 @@ Using this approach you should get the following benefits:
 3) Enable simpler unit tests since component methods often will use unwrapped data (easier to mock objects vs observables)
 4) Easier to review code. If a component follows this pattern, a reviewer will not have to dig deep into subscribe callbacks and unsubscribes.
 
-Note: the Angular async pipe is going to handle most of the work after the code is setup properly. Here is a link followed by a numbered list to highlight the key features from the description: 
+#### Review features of Async Pipe
+The async pipe is going to handle most of the work after the code is setup properly. Here is a link followed by a numbered list to highlight the key features from the description: 
 https://angular.io/api/common/AsyncPipe#description
 1) The `async` pipe subscribes to an `Observable` or `Promise` and returns the latest value it has emitted. 
 2) When a new value is emitted, the `async` pipe marks the component to be checked for changes. 
