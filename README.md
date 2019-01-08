@@ -5,7 +5,7 @@ the [async pipe](https://angular.io/api/common/AsyncPipe#description) can handle
 2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box
 experience, but frequently causes needless re-renders.
 When I first looked at the OnPush change detection strategy it looked like going from big guard rails to no guard rails.
-But after digging deeper, I discovered my go-to approach for managing subscriptions (the async pipe) could also assist with OnPush change detection.  
+But after digging deeper, I realized my go-to approach for managing subscriptions (the async pipe) could also assist with OnPush change detection.  
 
 ### How to avoid subscribe and unsubscribe.
 
