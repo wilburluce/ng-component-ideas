@@ -74,7 +74,7 @@ If you followed the steps above, all you will need to do to get the benefit of O
 So at this point, you should have a safe and efficient component using a minimal amount of code.
 
 ### Further Discussion
-Question: What if I need to initialize something like a reactive form before the template renders? 
+Question: What if I need to initialize something like a reactive form before the template renders?   
 Answer: add an *ngIf as so:
 
 ```<ng-container *ngIf=“initializeFormGroup(viewData) as formGroup”>...</ng-container>```
