@@ -7,7 +7,7 @@ experience, but frequently causes needless re-renders.
 When I first looked at the OnPush change detection strategy it looked like going from big guard rails to no guard rails.
 But after digging deeper, I discovered my go-to approach for managing subscriptions (the async pipe) could also assist with OnPush change detection.  
 
-In addition to the benefits of using the async pipe, some of the ideas below should also
+In addition to the benefits of using the async pipe - which is nothing really new, I use a simple concept that has made my code simpler: I combine all observables used in the template into a single observable. This frequently blah blah
 1) Enable simpler unit tests - since component methods often will use unwrapped data, mocking is easier
 2) Easier to review code. If a component follows this pattern, a reviewer will not have to dig deep into subscribe callbacks and unsubscribes.
 
