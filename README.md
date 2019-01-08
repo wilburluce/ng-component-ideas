@@ -1,15 +1,11 @@
 ### Some Best Practices for Angular Components
-After working with Angular components for a while, I found a couple of things that demanded a better approach:
+After working with Angular components for a while, I found a couple of things that nagged me to find a better approach:
 1) Managing rxjs subscriptions - the need to unsubscribe from observables with potential for memory leaks. I found in most cases,
 the [async pipe](https://angular.io/api/common/AsyncPipe#description) can handle subscribing and unsubscribing for me.
 2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box
 experience, but frequently causes needless re-renders.
 When I first looked at the OnPush change detection strategy it looked like going from big guard rails to no guard rails.
 But after digging deeper, I discovered my go-to approach for managing subscriptions (the async pipe) could also assist with OnPush change detection.  
-
-In addition to the benefits of using the async pipe - which is nothing really new, I use a simple concept that has made my code simpler: I combine all observables used in the template into a single observable. This frequently blah blah
-1) Enable simpler unit tests - since component methods often will use unwrapped data, mocking is easier
-2) Easier to review code. If a component follows this pattern, a reviewer will not have to dig deep into subscribe callbacks and unsubscribes.
 
 ### How to avoid subscribe and unsubscribe.
 
@@ -86,7 +82,7 @@ Answer: add an *ngIf as so:
 The method takes the viewData and returns the formGroup. The idea here, in general, is to pass the viewData back to methods in the component which will keep you from having to create and subscribe to observables. It should also make it easier to unit test the component methods by mocking the view object vs spying on things that return data for observables.
 
 Question: What if its more practical (for whatever reason) to subscribe by hand in the component?  
-Answer: Combine as many observable sources into one observable and manage that via the async pipe. For anything you need to hand subscribe, make sure to add code to unsubscribe and _if you are using OnPush_ make sure to call markForCheck() if an emitted value impacts the view.
+Answer: Combine as many observable sources into one observable and manage that via the async pipe. For anything you need to hand subscribe, make sure to add code to unsubscribe and *if you are using OnPush* make sure to call markForCheck() if an emitted value impacts the view.
 
 ```
 constructor(ChangeDetectorRef cdRef)
