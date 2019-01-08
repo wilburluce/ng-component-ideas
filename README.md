@@ -7,9 +7,9 @@ experience, but frequently causes needless re-renders.
 When I first looked at the OnPush change detection strategy it looked like going from big guard rails to no guard rails. But after digging deeper, I discovered my approach for managing subscriptions (the async pipe) could also assist with OnPush change detection.  
 
 This approach should give you the following benefits:
-1) Avoid subscribes and related cleanup in the component typescript - repetitive code and a source of memory leaks/runaway observables
-2) Allow components to use the OnPush detection strategy without much extra code - better UI performance/experience
-3) Enable simpler unit tests since component methods often will use unwrapped data (easier to mock objects vs observables)
+1) Avoid subscribes and related cleanup in the component typescript - avoid the repetive chore of unsubscribe and potential source of memory leaks/runaway observables
+2) Allow components to use the OnPush detection strategy without much extra work - better UI performance
+3) Enable simpler unit tests - since component methods often will use unwrapped data, mocking is easier
 4) Easier to review code. If a component follows this pattern, a reviewer will not have to dig deep into subscribe callbacks and unsubscribes.
 
 #### Review features of Async Pipe
@@ -21,8 +21,8 @@ https://angular.io/api/common/AsyncPipe#description
 
 #### How to avoid subscribe and unsubscribe.
 
-One of the challenges of working with rxjs is the need to manage subscriptions. For those who have worked with the C/C++ languages, this is similar to the malloc/free and new/delete programming practice that is prone to memory leaks.  The lead developer of rxjs (Ben Lesh) wrote a best-practices article on subscribe/unsubscribe: [dont unsubscribe](https://medium.com/@benlesh/rxjs-dont-unsubscribe-6753ed4fda87). Even with the recommended approach, you will still have to write some code: i.e. the example shows a boolean (stop$) and takeUntil() operator to indicate when to shutdown the subscription.
-His examples show a least-imperative, best-case approach without Angular, but with Angular the async pipe can handle this chore for you.
+One of the challenges of working with rxjs is the need to manage subscriptions. For those who have worked with the C/C++ languages, this is similar to the malloc/free and new/delete programming practice that is prone to memory leaks.  The lead developer of rxjs (Ben Lesh) wrote a best-practices article on subscribe/unsubscribe: [dont unsubscribe](https://medium.com/@benlesh/rxjs-dont-unsubscribe-6753ed4fda87). Even with the recommended approach, you will still have to write some code: i.e. one example shows a boolean (stop$) and takeUntil() operator to indicate when to shutdown the subscription.
+His examples show a best-case approach without Angular, but with Angular the async pipe can handle this for you.
 
 Here are the recommended practices:
 
@@ -54,6 +54,7 @@ export interface ViewData {
 ```
     <ng-container *ngIf="viewData$ | async as viewData">
 ```
+
 This single line of markup will tell Angular via the async pipe to:
 1) subscribe to your observable
 2) mark the component for change detection when a new value arrives
@@ -78,18 +79,24 @@ The async pipe is the easiest approach here. The async pipe will call the markFo
 If you followed the steps above, all you will need to do to get the benefit of OnPush is add the following in your @component decorator:
 
 ```
-  changeDetection: ChangeDetectionStrategy.OnPush
+@component({
+    ...
+    changeDetection: ChangeDetectionStrategy.OnPush
+  })
 ```
 
 #### Further Discussion
-##### Question: ‘What if I need to initialize something like a reactive form before the template renders?’ 
-##### Answer: add another *ngIf somewhere below the element that subscribes to the view data.
+Question: What if I need to initialize something like a reactive form before the template renders? 
+Answer: add an *ngIf as so:
 
 ```<ng-container *ngIf=“initializeFormGroup(viewData) as formGroup”>...</ng-container>```
 
-##### Question: what to do if I need an observable/subscribe in my component
-##### Answer: handle your subscribe / unsubscribe in code, but make sure to add markForCheck() when needed
 The method takes the viewData and returns the formGroup. The idea here, in general, is to pass the viewData back to methods in the component which will keep you from having to create and subscribe to observables. It should also make it easier to unit test the component methods by mocking the view object vs spying on things that return data for observables.
+
+Question: What if its more practical (for whatever reason) to use observable/subscribe by hand in the component?  
+Answer: Combine as much into one observable and manage via the async pipe. For anything you need to hand subscribe, make sure to add code to unsubscribe and if you are using OnPush make sure to call markForCheck()
+
+##### Answer: handle your subscribe / unsubscribe in code, but make sure to add markForCheck() when needed
 
 
 
