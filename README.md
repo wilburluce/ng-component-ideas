@@ -1,5 +1,5 @@
 ### Some Best Practices for Angular Components
-After working with Angular components for a while, I found a couple of things that nagged at me for a better approach:
+After working with Angular components for a while, I found a couple of things that demanded a better approach:
 1) Managing rxjs subscriptions - the need to unsubscribe from observables with potential for memory leaks. I found in most cases,
 the [async pipe](https://angular.io/api/common/AsyncPipe#description) can handle subscribing and unsubscribing for me.
 2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box
@@ -11,7 +11,7 @@ In addition to the benefits of using the async pipe - which is nothing really ne
 1) Enable simpler unit tests - since component methods often will use unwrapped data, mocking is easier
 2) Easier to review code. If a component follows this pattern, a reviewer will not have to dig deep into subscribe callbacks and unsubscribes.
 
-#### How to avoid subscribe and unsubscribe.
+### How to avoid subscribe and unsubscribe.
 
 One of the challenges of working with rxjs is the need to manage subscriptions. For those who have worked with the C/C++ languages, this is similar to the malloc/free and new/delete programming practice that is prone to memory leaks.  The lead developer of rxjs (Ben Lesh) wrote a best-practices article on subscribe/unsubscribe: [dont unsubscribe](https://medium.com/@benlesh/rxjs-dont-unsubscribe-6753ed4fda87). Even with the recommended approach, you will still have to write some code: i.e. one example shows a boolean (stop$) and takeUntil() operator to indicate when to shutdown the subscription.
 His examples show a best-case approach without Angular, but with Angular the async pipe can handle this for you.
@@ -77,7 +77,7 @@ If you followed the steps above, all you will need to do to get the benefit of O
 ```
 So at this point, you should have a safe and efficient component using a minimal amount of code.
 
-#### Further Discussion
+### Further Discussion
 Question: What if I need to initialize something like a reactive form before the template renders? 
 Answer: add an *ngIf as so:
 
