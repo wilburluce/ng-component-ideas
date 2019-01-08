@@ -1,10 +1,11 @@
 ### Some Best Practices for Angular Components
 After working with Angular components for a while, I found a couple of things that nagged at me for a better approach:
 1) Managing rxjs subscriptions - the need to unsubscribe from observables with potential for memory leaks. I found in most cases,
-I can let the async pipe handle subscribing and unsubscribing for me.
+I can let the [https://angular.io/api/common/AsyncPipe#description](async pipe) handle subscribing and unsubscribing for me.
 2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box
 experience, but frequently causes needless re-renders.
-When I first looked at the OnPush change detection strategy it looked like going from big guard rails to no guard rails. But after digging deeper, I discovered my approach for managing subscriptions (the async pipe) could also assist with OnPush change detection.  
+When I first looked at the OnPush change detection strategy it looked like going from big guard rails to no guard rails.
+But after digging deeper, I discovered my go-to approach for managing subscriptions (the async pipe) could also assist with OnPush change detection.  
 
 This approach should give you the following benefits:
 1) Avoid subscribes and related cleanup in the component typescript - avoid the repetive chore of unsubscribe and potential source of memory leaks/runaway observables
@@ -74,7 +75,7 @@ Angular also provides the more DIY approach for change detection called OnPush. 
 4) explicitly calling markForCheck() on the change detector when some value needed by the template changes.
 5) using the async pipe to automatically markForCheck() anytime new values emit in an an observable
 
-The async pipe is the easiest approach here. The async pipe will call the markForCheck() method on the changeDetector for you whenever the observable emits a new value. This is when you want the component re-render.
+The async pipe is the easiest approach here. The async pipe will call the markForCheck() method on the changeDetector for you whenever the observable emits a new value. This is when you want the component to re-render.
 
 If you followed the steps above, all you will need to do to get the benefit of OnPush is add the following in your @component decorator:
 
