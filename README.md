@@ -7,11 +7,9 @@ experience, but frequently causes needless re-renders.
 When I first looked at the OnPush change detection strategy it looked like going from big guard rails to no guard rails.
 But after digging deeper, I discovered my go-to approach for managing subscriptions (the async pipe) could also assist with OnPush change detection.  
 
-This approach should give you the following benefits:
-1) Avoid subscribes and related cleanup in the component typescript - avoid the repetive chore of unsubscribe and potential source of memory leaks/runaway observables
-2) Allow components to use the OnPush detection strategy without much extra work - better UI performance
-3) Enable simpler unit tests - since component methods often will use unwrapped data, mocking is easier
-4) Easier to review code. If a component follows this pattern, a reviewer will not have to dig deep into subscribe callbacks and unsubscribes.
+In addition to the benefits of using the async pipe, some of the ideas below should also
+1) Enable simpler unit tests - since component methods often will use unwrapped data, mocking is easier
+2) Easier to review code. If a component follows this pattern, a reviewer will not have to dig deep into subscribe callbacks and unsubscribes.
 
 #### How to avoid subscribe and unsubscribe.
 
