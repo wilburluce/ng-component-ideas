@@ -1,6 +1,6 @@
 ### Some Best Practices for Angular Components
 After working with Angular components for a while, I found a couple of things that nagged me to find a better approach:
-1) Managing rxjs subscriptions - the need to unsubscribe from observables with potential for memory leaks. I found in most cases,
+1) Managing rxjs subscriptions - the need to unsubscribe from observables with potential for memory leaks. I discovered in most cases,
 the [async pipe](https://angular.io/api/common/AsyncPipe#description) can handle subscribing and unsubscribing for me.
 2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box
 experience, but frequently causes needless re-renders.
