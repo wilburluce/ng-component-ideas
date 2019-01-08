@@ -1,7 +1,7 @@
 ### Some Best Practices for Angular Components
 After working with Angular components for a while, I found a couple of things that nagged at me for a better approach:
 1) Managing rxjs subscriptions - the need to unsubscribe from observables with potential for memory leaks. I found in most cases,
-I can let the [https://angular.io/api/common/AsyncPipe#description](async pipe) handle subscribing and unsubscribing for me.
+the [async pipe](https://angular.io/api/common/AsyncPipe#description) can handle subscribing and unsubscribing for me.
 2) Writing components that only render when necessary. Angular's default change detection strategy gives a great out of box
 experience, but frequently causes needless re-renders.
 When I first looked at the OnPush change detection strategy it looked like going from big guard rails to no guard rails.
@@ -12,13 +12,6 @@ This approach should give you the following benefits:
 2) Allow components to use the OnPush detection strategy without much extra work - better UI performance
 3) Enable simpler unit tests - since component methods often will use unwrapped data, mocking is easier
 4) Easier to review code. If a component follows this pattern, a reviewer will not have to dig deep into subscribe callbacks and unsubscribes.
-
-#### Review features of Async Pipe
-The async pipe is going to handle most of the work after the code is setup properly. Here is a link followed by a numbered list to highlight the key features from the description: 
-https://angular.io/api/common/AsyncPipe#description
-1) The `async` pipe subscribes to an `Observable` or `Promise` and returns the latest value it has emitted. 
-2) When a new value is emitted, the `async` pipe marks the component to be checked for changes. 
-3) When the component gets destroyed, the `async` pipe unsubscribes automatically to avoid potential memory leaks.
 
 #### How to avoid subscribe and unsubscribe.
 
@@ -56,12 +49,11 @@ export interface ViewData {
     <ng-container *ngIf="viewData$ | async as viewData">
 ```
 
-This single line of markup will tell Angular via the async pipe to:
+This single line of markup will tell Angular to:
 1) subscribe to your observable
-2) mark the component for change detection when a new value arrives
-3) handle the unsubscribe on destroy. 
+2) handle the unsubscribe on destroy. 
 
-There is no need to manage any of these things in typescript directly. This should make your code smaller, easier to understand,
+There is no need to manage either of these things in typescript directly. This should make your code smaller, easier to understand,
 and easier to test.
 
 ### OnPush change detection
@@ -85,6 +77,7 @@ If you followed the steps above, all you will need to do to get the benefit of O
     changeDetection: ChangeDetectionStrategy.OnPush
   })
 ```
+So at this point, you should have a safe and efficient component using a minimal amount of code.
 
 #### Further Discussion
 Question: What if I need to initialize something like a reactive form before the template renders? 
@@ -94,12 +87,17 @@ Answer: add an *ngIf as so:
 
 The method takes the viewData and returns the formGroup. The idea here, in general, is to pass the viewData back to methods in the component which will keep you from having to create and subscribe to observables. It should also make it easier to unit test the component methods by mocking the view object vs spying on things that return data for observables.
 
-Question: What if its more practical (for whatever reason) to use observable/subscribe by hand in the component?  
-Answer: Combine as much into one observable and manage via the async pipe. For anything you need to hand subscribe, make sure to add code to unsubscribe and if you are using OnPush make sure to call markForCheck()
+Question: What if its more practical (for whatever reason) to subscribe by hand in the component?  
+Answer: Combine as many observable sources into one observable and manage that via the async pipe. For anything you need to hand subscribe, make sure to add code to unsubscribe and _if you are using OnPush_ make sure to call markForCheck() if an emitted value impacts the view.
 
-##### Answer: handle your subscribe / unsubscribe in code, but make sure to add markForCheck() when needed
-
-
+```
+constructor(ChangeDetectorRef cdRef)
+...
+$obs.subscribe(data => {
+    this.usedInTemplate = data;
+    cdRef.markForCheck();
+})
+```
 
 Further reading:
 - https://blog.angular-university.io/how-does-angular-2-change-detection-really-work/
