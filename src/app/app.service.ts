@@ -3,6 +3,7 @@ import { Observable, of } from 'rxjs';
 
 @Injectable()
 export class DataService {
+
   public selectUser(): Observable<User> {
     return of({id: 1, name: 'Mark'});
   }
